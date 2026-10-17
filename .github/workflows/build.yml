@@ -4,17 +4,20 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-    - name: Compile Loader
-      run: cl.exe Loader.cpp /Fe:Loader.exe /O2 /MT
-    - name: Compile DLL
-      run: cl.exe CheatDLL.cpp /Fe:cheat.dll /LD /O2 /MT
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: compiled-cheat
-        path: |
-          Loader.exe
-          cheat.dll
+      - uses: actions/checkout@v4
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        
+      - name: Compile C++ Files
+        run: |
+          cl.exe Loader.cpp /Fe:Loader.exe /O2 /MT
+          cl.exe CheatDLL.cpp /Fe:cheat.dll /LD /O2 /MT
+          
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-cheat
+          path: |
+            Loader.exe
+            cheat.dll
