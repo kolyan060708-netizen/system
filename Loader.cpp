@@ -1,0 +1,5 @@
+#include <windows.h>
+#include <TlHelp32.h>
+#include <iostream>
+DWORD GetPID(const wchar_t* name) { PROCESSENTRY32W pe; pe.dwSize = sizeof(pe); HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0); if (Process32FirstW(snap, &pe)) { do { if (!_wcsicmp(pe.szExeFile, name)) { CloseHandle(snap); return pe.th32ProcessID; } } while (Process32NextW(snap, &pe)); } return 0; }
+int main() { std::cout << "[+] Waiting for javaw.exe..." << std::endl; DWORD pid = 0; while (!(pid = GetPID(L"javaw.exe"))) Sleep(1000); HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid); if (!hProc) return 1; const char* dllPath = "cheat.dll"; LPVOID pDll = VirtualAllocEx(hProc, 0, strlen(dllPath) + 1, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE); WriteProcessMemory(hProc, pDll, dllPath, strlen(dllPath) + 1, 0); HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "LoadLibraryA"), pDll, 0, 0); if (hThread) { WaitForSingleObject(hThread, INFINITE); std::cout << "[+] Injected!" << std::endl; } return 0; }
